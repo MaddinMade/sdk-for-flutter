@@ -18,10 +18,21 @@ Future<Response> chunkedUpload({
   Function(UploadProgress)? onProgress,
 }) async {
   InputFile file = params[paramName];
-  if (file.path == null) {
+  if (file.path == null && file.file == null) {
     throw AppwriteException("File path must be provided for dart:io");
   }
-  io.File iofile = io.File(file.path!);
+
+  if(file.file != null){
+    params[paramName] = file.file;
+    return client.call(
+      HttpMethod.post,
+      path: path,
+      params: params,
+      headers: headers,
+    );
+  }
+
+  io.File? iofile = io.File(file.path!);
   final size = await iofile.length();
 
   late Response res;
